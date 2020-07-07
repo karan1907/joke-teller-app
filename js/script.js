@@ -94,10 +94,17 @@ const VoiceRSS = {
   }
 };
 
-function test() {
+// Toggle enable disable of button
+function toggleButton() {
+  button.disabled = !button.disabled;
+}
+
+// Passing joke to Voice API
+function tellMe(joke) {
+  console.log("Tell me : ", joke);
   VoiceRSS.speech({
     key: "e78305fc00bc482ba0fdd65bd67f3f69",
-    src: "Hello, world!",
+    src: joke,
     hl: "en-us",
     r: 0,
     c: "mp3",
@@ -105,4 +112,28 @@ function test() {
     ssml: false
   });
 }
-test();
+
+// Get Jokes From Joke API
+async function getJokes() {
+  let joke = "";
+  const apiURL =
+    "https://sv443.net/jokeapi/v2/joke/Programming?blacklistFlags=nsfw,religious,political,racist,sexist";
+  try {
+    const response = await fetch(apiURL);
+    const data = await response.json();
+    if (data.setup) {
+      joke = `${data.setup} ... ${data.delivery}`;
+    } else {
+      joke = data.joke;
+    }
+    tellMe(joke);
+    // Disable the button
+    toggleButton();
+  } catch (error) {
+    // Catch errors here
+    console.log("Whooops, Failed to fetch JOKES : ", error);
+  }
+}
+
+button.addEventListener("click", getJokes);
+audioElement.addEventListener("ended", toggleButton);
